@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>KHK Android HTTPS Bridge Test</title>
+</head>
+<body>
+
+  <h2>KHK ProcessingPlantAI</h2>
+  <p>HTTPS to Android Localhost Bridge Test</p>
+
+  <button onclick="readWeight()">
+    Read Weight
+  </button>
+
+  <pre id="result">Waiting for test...</pre>
+
+  <script>
+    async function readWeight() {
+      const result = document.getElementById("result");
+      result.textContent = "Connecting...";
+
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8765/weight",
+          {
+            method: "GET",
+            mode: "cors",
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        result.textContent =
+          "CONNECTED: " + data.connected + "\n" +
+          "STABLE: " + data.stable + "\n" +
+          "WEIGHT: " + data.weight_g + " g\n" +
+          "DEVICE: " + data.device;
+
+      } catch (error) {
+        result.textContent =
+          "BRIDGE ERROR: " + error.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
