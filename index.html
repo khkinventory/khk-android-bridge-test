@@ -16,6 +16,18 @@
     Read Weight
   </button>
 
+  
+  <button onclick="saveTestTransaction()">
+    Save Test Transaction
+  </button>
+  
+  <button onclick="viewTransactions()">
+    View Saved Transactions
+  </button>
+  
+  <pre id="db-result">No transactions saved yet.</pre>
+
+  
   <pre id="result">Waiting for test...</pre>
 
   <script>
@@ -75,6 +87,83 @@
     }
   </script>
 
+
+
+  
+<script src="./db.js"></script>
+
+<script>
+  async function saveTestTransaction() {
+    const output = document.getElementById("db-result");
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8765/weight",
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Weight bridge unavailable");
+      }
+
+      const weight = await response.json();
+
+      if (!weight.connected || !weight.stable) {
+        throw new Error("Scale reading not ready");
+      }
+
+      if (!Number.isFinite(weight.weight_g) ||
+          weight.weight_g <= 0) {
+        throw new Error("Invalid weight");
+      }
+
+      const transaction = {
+        transaction_id: crypto.randomUUID(),
+        source_qr: "SOURCE-TEST-001",
+        packaging_qr: "PACK-TEST-001",
+        weight_g: weight.weight_g,
+        device: weight.device,
+        created_at: new Date().toISOString(),
+        sync_status: "PENDING",
+        simulated: true
+      };
+
+      await saveWeighingTransaction(transaction);
+
+      output.textContent =
+        "TRANSACTION SAVED LOCALLY\n" +
+        "ID: " + transaction.transaction_id + "\n" +
+        "SOURCE: " + transaction.source_qr + "\n" +
+        "PACKAGING: " + transaction.packaging_qr + "\n" +
+        "WEIGHT: " + transaction.weight_g + " g\n" +
+        "SYNC: " + transaction.sync_status;
+
+    } catch (error) {
+      output.textContent =
+        "SAVE ERROR: " + error.message;
+    }
+  }
+
+  async function viewTransactions() {
+    const output = document.getElementById("db-result");
+
+    try {
+      const transactions =
+        await getWeighingTransactions();
+
+      output.textContent =
+        "SAVED TRANSACTIONS: " +
+        transactions.length + "\n\n" +
+        JSON.stringify(transactions, null, 2);
+
+    } catch (error) {
+      output.textContent =
+        "DATABASE ERROR: " + error.message;
+    }
+  }
+</script>
+
+  
   
 </body>
 </html>
