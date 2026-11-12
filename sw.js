@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "khk-bridge-v2";
+const CACHE_NAME = "khk-bridge-v3";
 
 const APP_FILES = [
   "./",
