@@ -1,9 +1,10 @@
 
-const CACHE_NAME = "khk-bridge-v1";
+const CACHE_NAME = "khk-bridge-v2";
 
 const APP_FILES = [
   "./",
-  "./index.html"
+  "./index.html",
+  "./db.js"
 ];
 
 // Install: cache the application interface
